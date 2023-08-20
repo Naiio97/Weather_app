@@ -1,0 +1,47 @@
+@import "../styles/variables.scss";
+
+.daily-weather-box {
+  display: grid;
+  grid-template-columns: 1fr 3fr 1fr;
+  grid-template-rows: 1fr;
+  grid-column-gap: 0px;
+  grid-row-gap: 0px;
+  align-items: center;
+  margin: 10px 0;
+
+  span {
+    font-size: 16px !important;
+  }
+
+  img {
+    display: block;
+    margin: 0 auto;
+  }
+
+  .daily-temperature {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    gap: 10px;
+
+    .lowest-temp {
+        color: $light-blue-text;
+    }
+
+    .progress-bar {
+      display: flex;
+      height: 4px;
+      width: 120px;
+      background-color: #00000017;
+      border-radius: 2px;
+      align-items: center;
+
+      .bar {
+        background: linear-gradient(145deg, #c8d190 -40%, #ef752b 40%);
+        height: 4px;
+        width: 120px;
+        border-radius: 2px;
+      }
+    }
+  }
+}

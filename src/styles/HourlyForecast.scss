@@ -1,0 +1,19 @@
+.hourly-weather-box {
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
+
+  span {
+    text-align: center;
+  }
+
+  img {
+    position: relative;
+    width: 20px;
+    margin: 10px 0;
+  }
+
+  svg {
+    width: 20px;
+  }
+}

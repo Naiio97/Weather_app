@@ -1,0 +1,321 @@
+@import "../styles/variables.scss";
+
+.weather-window {
+  border-radius: 10px;
+  padding: 10px;
+  background: linear-gradient(145deg, #ffed4b -40%, #2f99df 40%);
+  width: 1000px;
+
+  @media screen and (max-width: 1000px) {
+    width: 100%;
+  }
+
+  .search {
+    display: flex;
+    justify-content: end;
+    position: relative;
+
+    input {
+      position: relative;
+      padding: 5px;
+      border: none;
+      border-radius: 5px;
+      padding-left: 25px;
+      background-color: #0077c5;
+      opacity: 0.7;
+      color: $light-grey-color;
+
+      &:focus {
+        outline: none;
+        color: $light-grey-color;
+      }
+
+      &::placeholder {
+        color: #dae1e8;
+      }
+    }
+
+    svg {
+      position: absolute;
+      color: #dae1e8;
+      top: 5px;
+      right: 150px;
+    }
+  }
+
+  .header-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px 0 25px 0;
+    color: #fff;
+
+    h1 {
+      margin-bottom: 5px;
+      font-weight: 400;
+    }
+
+    .actual-temp {
+      font-size: 32px;
+      margin-bottom: 5px;
+    }
+
+    .low-hig {
+      display: flex;
+      gap: 5px;
+
+      svg {
+        margin-top: 5px;
+        position: relative;
+        top: 3px;
+      }
+    }
+  }
+
+  @mixin blue-header {
+    font-size: 10px;
+    color: $light-blue-text;
+    margin-bottom: 10px;
+  }
+
+  .container {
+    display: grid;
+    width: 650px;
+    grid-template-columns: 1fr;
+    gap: 11px;
+    justify-content: center;
+    margin: 0 auto;
+
+    @media screen and (max-width: 670px) {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+
+    @media screen and (max-width: 615px) {
+      width: 450px;
+    }
+
+    @media screen and (max-width: 470px) {
+      width: 375px;
+    }
+
+    .horisontal-bar {
+      width: 100%;
+      margin: 0 auto;
+      height: 1px;
+      background-color: rgba(218, 225, 232, 0.2);
+    }
+
+    span {
+      font-size: 12px;
+      color: $text-color;
+    }
+
+    .hourly-for {
+      grid-column: 1 / 3;
+      height: 125px;
+      background-color: $tiles-background;
+      border-radius: 10px;
+      padding: 10px;
+
+      h3 {
+        @include blue-header;
+      }
+
+      .hourly-weather-window {
+        display: flex;
+        gap: 20px;
+        overflow: auto;
+
+        &::-webkit-scrollbar {
+          display: none;
+        }
+      }
+    }
+
+    .daily-for {
+      grid-column: 1 / 2;
+      grid-row: 2 / 3;
+      background-color: $tiles-background;
+      border-radius: 10px;
+      padding: 10px 10px 0 10px;
+
+      h3 {
+        @include blue-header;
+      }
+    }
+
+    @mixin small-window {
+      width: 140px;
+      height: 140px;
+      background-color: $tiles-background;
+      border-radius: 10px;
+
+      @media screen and (max-width: 470px) {
+        width: 180px;
+        height: 180px;
+      }
+    }
+
+    .weather-details {
+      grid-column: 2 / 3;
+      grid-row: 2 / 3;
+      display: grid;
+      gap: 11px;
+
+      @media screen and (max-width: 670px) {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      @media screen and (max-width: 615px) {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 13px;
+      }
+
+      @media screen and (max-width: 470px) {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      span {
+        font-size: 22px;
+      }
+
+      @mixin header-small-tile {
+        .name-tile {
+          display: flex;
+          color: $light-blue-text;
+
+          img {
+            filter: invert(66%) sepia(81%) saturate(242%) hue-rotate(167deg)
+              brightness(99%) contrast(96%);
+            position: relative;
+          }
+
+          h3 {
+            @include blue-header;
+            margin-bottom: 0;
+          }
+        }
+      }
+
+      .uv-index {
+        grid-column: 1 / 2;
+        @include small-window;
+        @include header-small-tile;
+        padding: 10px;
+
+        img {
+          bottom: 4px;
+        }
+
+        .uv-value {
+          display: flex;
+          flex-direction: column;
+          margin-top: 10px;
+        }
+
+        .uv-bar {
+          height: 4px;
+          width: 100%;
+          background: linear-gradient(
+            145deg,
+            #71d35b,
+            #eed23a,
+            #f19e3c,
+            #e82e46,
+            #b562e3
+          );
+          border-radius: 3px;
+          margin-top: 20px;
+
+          .ball {
+            height: 4px;
+            width: 4px;
+            background-color: #fff;
+            border-radius: 4px;
+          }
+        }
+      }
+      .wind {
+        grid-column: 2 / 2;
+        @include small-window;
+        @include header-small-tile;
+        padding: 10px;
+
+        img {
+          bottom: 2px;
+          margin-right: 4px;
+        }
+
+        .wind-value {
+          margin-top: 15px;
+          font-size: 18px;
+        }
+      }
+      .rain {
+        @include small-window;
+        @include header-small-tile;
+        padding: 10px;
+
+        img {
+          bottom: 2px;
+        }
+
+        .rain-value {
+          display: flex;
+          flex-direction: column;
+          margin-top: 10px;
+
+          span:nth-child(2) {
+            font-size: 12px;
+          }
+        }
+      }
+      .feels-like {
+        @include small-window;
+        @include header-small-tile;
+        padding: 10px;
+
+        img {
+          bottom: 2px;
+          margin-right: 4px;
+        }
+
+        .feels-like-value {
+          margin-top: 10px;
+        }
+      }
+
+      .visibility {
+        @include small-window;
+        @include header-small-tile;
+        padding: 10px;
+
+        img {
+          bottom: 2px;
+          margin-right: 4px;
+        }
+
+        .visibility-value {
+          margin-top: 10px;
+        }
+      }
+
+      .humidity {
+        @include small-window;
+        @include header-small-tile;
+        padding: 10px;
+
+        img {
+          bottom: 2px;
+          margin-right: 4px;
+        }
+
+        .humidity-value {
+          margin-top: 10px;
+        }
+      }
+    }
+  }
+}
