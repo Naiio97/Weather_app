@@ -118,6 +118,25 @@
       background-color: $tiles-background;
       border-radius: 10px;
       padding: 10px;
+      position: relative;
+
+      .arrow {
+        position: absolute;
+        display: none;
+        filter: invert(97%) sepia(1%) saturate(7106%) hue-rotate(183deg) brightness(100%) contrast(92%);
+      }
+
+      
+
+      .left {
+        top: 50px;
+        left: -35px;
+      }
+
+      .right {
+        top: 50px;
+        right: -35px;
+      }
 
       h3 {
         @include blue-header;

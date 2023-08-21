@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import axios from "axios";
+import React, { ChangeEvent, useState, useEffect, useRef } from "react";
+
 
 import { BsArrowDown } from "react-icons/bs";
 import { BsArrowUp } from "react-icons/bs";
@@ -14,6 +14,8 @@ import wind from "../../public/wind.svg";
 import rain from "../../public/rain.svg";
 import feelsLike from "../../public/feels-like.svg";
 import visibility from "../../public/visibility.svg";
+import arrowLeft from "../../public/arrow-left.svg";
+import arrowRight from "../../public/right-arrow.svg";
 
 import hourly from "../hourly.json";
 
@@ -34,6 +36,7 @@ type Daily = {
 const WeatherContainer = () => {
   const [articles, setArticles] = useState<Props[]>([]);
   const [daily, setDaily] = useState<Daily[]>([]);
+  const [city, setCity] = useState<string>("");
 
   useState(() => {
     setArticles(hourly.hourly);
@@ -43,37 +46,77 @@ const WeatherContainer = () => {
     setDaily(hourly.daily);
   }, []);
 
-  // useEffect(() => {
-  //   // Definujeme asynchronní funkci
-  //   const fetchWeather = async () => {
-  //     try {
-  //       const response = await axios.get<{ items: LocationWeather[] }>(
-  //         `https://api.openweathermap.org/data/2.5/weather?q=Prague&appid=f4cc83065087980bbfad37e8558f7712`,
-  //         {
-  //           headers: {
-  //             "Content-Type": "application/json",
-  //           },
-  //         }
-  //       );
-  //       console.log(response.data);
+  // const fetchWeather = async () => {
+  //   fetch(
+  //     `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=f4cc83065087980bbfad37e8558f7712`
+  //   )
+  //     .then((res) => res.json())
+  //     .then((res) => res.json());
+  // };
 
-  //       setLocations(response.data);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   };
+  // fetchWeather();
 
-  //   fetchWeather();
-  // }, []);
+  const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
+    setCity(e.target.value);
+  };
 
-  // console.log(location);
+  const hourlyWeatherWindowRef = useRef<HTMLDivElement | null>(null);
+
+  const handleScroll = () => {
+    if (hourlyWeatherWindowRef.current) {
+      const { scrollLeft, clientWidth, scrollWidth } = hourlyWeatherWindowRef.current;
+
+      const showRight = scrollLeft + clientWidth < scrollWidth - 1;
+
+      const leftArrow = document.querySelector(".arrow.left") as HTMLElement;
+      const rightArrow = document.querySelector(".arrow.right") as HTMLElement;
+
+      if (scrollLeft === 0) {
+        leftArrow.style.display = "none";
+      } else {
+        leftArrow.style.display = "block";
+      }
+
+      if (showRight) {
+        rightArrow.style.display = "block"; 
+      } else {
+        rightArrow.style.display = "none";
+      }
+    }
+  };
+
+  const handleMouseLeave = () => {
+    const leftArrow = document.querySelector(".arrow.left") as HTMLElement;
+    const rightArrow = document.querySelector(".arrow.right") as HTMLElement;
+
+    leftArrow.style.display = "none";
+    rightArrow.style.display = "none";
+  };
+
+  const handleMouseEnter = () => {
+    handleScroll();
+  };
+
+  useEffect(() => {
+    if (hourlyWeatherWindowRef.current) {
+      hourlyWeatherWindowRef.current.addEventListener("scroll", handleScroll);
+      hourlyWeatherWindowRef.current.addEventListener("mouseleave", handleMouseLeave);
+      hourlyWeatherWindowRef.current.addEventListener("mouseenter", handleMouseEnter);
+    }
+  }, []);
 
   return (
     <div>
       <div className="weather-window">
         <header>
           <div className="search">
-            <input id="city" name="city" type="text" placeholder="Hledat" />
+            <input
+              id="city"
+              name="city"
+              type="text"
+              placeholder="Hledat"
+              onChange={(e) => handleSearch(e)}
+            />
             <BsSearch />
           </div>
           <div className="header-info">
@@ -98,11 +141,13 @@ const WeatherContainer = () => {
         <main>
           <div className="container">
             <div className="hourly-for">
+              <img className="arrow left" src={arrowLeft} />
+              <img className="arrow right" src={arrowRight} />
               <h3 style={{ display: "block", marginBottom: 10 }}>
                 HOURLY FORECAST
               </h3>
               <div className="horisontal-bar"></div>
-              <div className="hourly-weather-window">
+              <div className="hourly-weather-window" ref={hourlyWeatherWindowRef}>
                 {articles.length >= 1
                   ? articles.map(
                       (article: {
