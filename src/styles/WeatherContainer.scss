@@ -1,14 +1,9 @@
 @import "../styles/variables.scss";
 
 .weather-window {
-  border-radius: 10px;
   padding: 10px;
   background: linear-gradient(145deg, #ffed4b -40%, #2f99df 40%);
-  width: 1000px;
-
-  @media screen and (max-width: 1000px) {
-    width: 100%;
-  }
+  min-height: 100vh;
 
   .search {
     display: flex;
@@ -32,6 +27,35 @@
 
       &::placeholder {
         color: #dae1e8;
+      }
+    }
+
+    ul {
+      position: absolute;
+      width: 169px;
+      top: 26px;
+      background-color: #0077c5;
+      opacity: 0.7;
+      border-radius: 5px;
+      padding: 5px 0;
+      display: block;
+
+      li {
+        list-style: none;
+
+        .list-button {
+          width: 100%;
+          background-color: #0077c5;
+          color: #fff;
+          border: none;
+          margin: 0;
+          padding: 5px 0;
+          cursor: pointer;
+
+          &:hover {
+            background-color: rgba(0, 0, 0, 0.0901960784);
+          }
+        }
       }
     }
 
@@ -120,13 +144,16 @@
       padding: 10px;
       position: relative;
 
+      svg {
+        color: red;
+      }
+
       .arrow {
         position: absolute;
         display: none;
-        filter: invert(97%) sepia(1%) saturate(7106%) hue-rotate(183deg) brightness(100%) contrast(92%);
+        filter: invert(97%) sepia(1%) saturate(7106%) hue-rotate(183deg)
+          brightness(100%) contrast(92%);
       }
-
-      
 
       .left {
         top: 50px;
@@ -140,6 +167,7 @@
 
       h3 {
         @include blue-header;
+        color: #fff;
       }
 
       .hourly-weather-window {
@@ -198,6 +226,10 @@
 
       span {
         font-size: 22px;
+
+        @media screen and (max-width: 470px) {
+          font-size: 25px;
+        }
       }
 
       @mixin header-small-tile {
@@ -218,6 +250,42 @@
         }
       }
 
+      @mixin tile-layout {
+        display: flex;
+        flex-direction: column;
+        margin-top: 15px;
+      }
+
+      @mixin tile-info {
+        display: flex;
+        flex-direction: column-reverse;
+        font-size: 11px;
+        color: #fff;
+        height: 28px;
+
+        @media screen and (max-width: 470px) {
+          font-size: 13px;
+        }
+      }
+
+      @mixin oneLineTileValue {
+        margin-top: 40px;
+        @include tile-info;
+
+        @media screen and (max-width: 470px) {
+          margin-top: 76px;
+        }
+      }
+
+      @mixin twoLineTileValue {
+        margin-top: 22px;
+          @include tile-info;
+
+          @media screen and (max-width: 470px) {
+            margin-top: 54px;
+          }
+      }
+
       .uv-index {
         grid-column: 1 / 2;
         @include small-window;
@@ -225,13 +293,25 @@
         padding: 10px;
 
         img {
-          bottom: 4px;
+          bottom: 2px;
+
+          svg {
+            color: red;
+          }
         }
 
         .uv-value {
-          display: flex;
-          flex-direction: column;
-          margin-top: 10px;
+          @include tile-layout;
+
+          span {
+            &:nth-child(2) {
+              font-size: 16px !important;
+
+              @media screen and (max-width: 470px) {
+                font-size: 19px !important;
+              }
+            }
+          }
         }
 
         .uv-bar {
@@ -246,7 +326,11 @@
             #b562e3
           );
           border-radius: 3px;
-          margin-top: 20px;
+          margin: 9px 0;
+
+          @media screen and (max-width: 470px) {
+            margin: 25px 0;
+          }
 
           .ball {
             height: 4px;
@@ -254,6 +338,10 @@
             background-color: #fff;
             border-radius: 4px;
           }
+        }
+
+        .uv-info {
+          @include tile-info;
         }
       }
       .wind {
@@ -268,8 +356,21 @@
         }
 
         .wind-value {
-          margin-top: 15px;
-          font-size: 18px;
+          @include tile-layout;
+
+          span {
+            &:nth-child(2) {
+              font-size: 16px !important;
+
+              @media screen and (max-width: 470px) {
+                font-size: 19px !important;
+              }
+            }
+          }
+        }
+
+        .wind-info {
+          @include twoLineTileValue;
         }
       }
       .rain {
@@ -282,13 +383,19 @@
         }
 
         .rain-value {
-          display: flex;
-          flex-direction: column;
-          margin-top: 10px;
+          @include tile-layout;
 
           span:nth-child(2) {
-            font-size: 12px;
+            font-size: 16px;
+
+            @media screen and (max-width: 470px) {
+              font-size: 19px !important;
+            }
           }
+        }
+
+        .rain-info {
+          @include twoLineTileValue;
         }
       }
       .feels-like {
@@ -302,7 +409,11 @@
         }
 
         .feels-like-value {
-          margin-top: 10px;
+          margin-top: 15px;
+        }
+
+        .feels-like-info {
+          @include oneLineTileValue;
         }
       }
 
@@ -319,6 +430,10 @@
         .visibility-value {
           margin-top: 10px;
         }
+
+        .visibility-info {
+          @include oneLineTileValue;
+        }
       }
 
       .humidity {
@@ -333,6 +448,81 @@
 
         .humidity-value {
           margin-top: 10px;
+        }
+
+        .humidity-info {
+          @include oneLineTileValue;
+        }
+      }
+    }
+  }
+}
+
+.search-weather {
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+  background: linear-gradient(145deg, #ffed4b -40%, #2f99df 40%);
+  min-height: 100vh;
+
+  .search-container {
+    position: relative;
+    margin-top: 200px;
+
+    input {
+      display: flex;
+      margin-top: 50px;
+      font-size: 16px;
+      width: 300px;
+      height: 50px;
+      background-color: #0077c5;
+      opacity: 0.7;
+      border-radius: 5px;
+      padding-left: 40px;
+      border: none;
+
+      &:focus {
+        outline: none;
+        color: $light-grey-color;
+      }
+
+      &::placeholder {
+        color: #dae1e8;
+      }
+    }
+
+    svg {
+      position: absolute;
+      top: 63px;
+      left: 7px;
+      width: 20px;
+      height: 20px;
+      color: #dae1e8;
+    }
+
+    ul {
+      background-color: #0077c5;
+      opacity: 0.7;
+      border-radius: 5px;
+      padding: 5px 0;
+      display: block;
+      margin-top: 1px;
+
+      li {
+        list-style: none;
+
+        .list-button {
+          width: 100%;
+          background-color: #0077c5;
+          color: #fff;
+          border: none;
+          margin: 0;
+          padding: 5px 0;
+          cursor: pointer;
+
+          &:hover {
+            background-color: rgba(0, 0, 0, 0.0901960784);
+          }
         }
       }
     }

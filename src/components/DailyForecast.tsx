@@ -1,30 +1,37 @@
-import React from "react";
-
 import "../styles/DailyForecast.scss";
-import sun from "../../public/sun-svgrepo-com.svg";
 
 type Props = {
-  id: React.Key;
-  day: string;
-  lowest: number;
-  higest: number;
+  dailyKey: number;
+  day: number;
+  min: number;
+  max: number;
+  icon: string;
   isLastItem: boolean;
+  today: boolean;
 };
 
 const DailyForecast = (props: Props) => {
-    const { id, day, lowest, higest, isLastItem } = props;
+  const { dailyKey, day, min, max, icon, isLastItem, today } = props;
+
+  const formatDtToDay = (unixTimestamp: number) => {
+    const date = new Date(unixTimestamp * 1000);
+    const formattedDay = date.getDay();
+    const day = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+    return day[formattedDay];
+  };
 
   return (
     <>
-      <div key={id} className="daily-weather-box">
-        <span>{day}</span>
-        <img src={sun} />
+      <div key={dailyKey} className="daily-weather-box">
+        {!today ? <span>{formatDtToDay(day)}</span> : <span>Today</span>}
+
+        <img src={`https://openweathermap.org/img/wn/${icon}.png`} />
         <div className="daily-temperature">
-          <span className="lowest-temp">{lowest}</span>
+          <span className="lowest-temp">{Math.round(min)}</span>
           <div className="progress-bar">
             <div className="bar"></div>
           </div>
-          <span>{higest}</span>
+          <span>{Math.round(max)}</span>
         </div>
       </div>
       {!isLastItem && <div className="horisontal-bar"></div>}

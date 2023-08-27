@@ -4,13 +4,3 @@
     font-family: Arial, Helvetica, sans-serif;
     box-sizing: border-box;
 }
-
-.app {
-  display: flex;
-  justify-content: center;
-
-  @media screen and (max-width: 1000px) {
-    display: block;
-    width: 100%;
-  }
-}

@@ -1,24 +1,31 @@
 import "../styles/HourlyForecast.scss";
 
-import sun from '../../public/sun-svgrepo-com.svg'
 
 type HourlyForecast = {
-  id: React.Key;
-  hour: number;
+  hourKey: number;
+  dt: number;
+  temp: number;
+  now: boolean;
   icon: string;
-  temperature: number;
 };
 
 const HourlyForecast = (props: HourlyForecast) => {
-  const { id, hour, icon, temperature } = props;
+  const { hourKey, dt, temp, now, icon } = props;
   
+  
+  const formatDtToHour = (unixTimestamp: number) => {
+    const date = new Date(unixTimestamp * 1000);
+    const formattedHour = date.getHours();
+    return formattedHour;
+  };  
 
   return (
-      <div key={id} className="hourly-weather-box">
-        <span>{hour}</span>
-        <img src={sun} />
-        <span>{temperature}</span>
-      </div>
+    <div key={hourKey} className="hourly-weather-box">
+      {!now ? <span>{formatDtToHour(dt)}</span> : <span>Now</span>}
+
+      <img src={`https://openweathermap.org/img/wn/${icon}.png`} />
+      <span>{Math.round(temp)}</span>
+    </div>
   );
 };
 
