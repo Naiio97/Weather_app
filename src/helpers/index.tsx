@@ -1,4 +1,5 @@
 import { forecastType } from "../types/index";
+import { DateTime } from "luxon";
 
 export const firstLetterUppercase = (word: string) => {
   const str = word;
@@ -9,37 +10,53 @@ export const firstLetterUppercase = (word: string) => {
 
 export const uvInfo = (
   uv: number,
-  hourly: forecastType["hourly"]
+  hourly: forecastType["hourly"],
+  timezone: string,
+  dt: number
 ): { level: string; info: string } => {
-  const currentDate = new Date();
-  const currentHour = currentDate.getHours();
+  const dateTime = DateTime.fromSeconds(dt, { zone: timezone });
+  const currentHour = dateTime.hour;
 
   const upcomingHours = hourly.filter((hour) => {
-    const hourDate = new Date(hour.dt * 1000);
-    const hourValue = hourDate.getHours();
-    return hourValue > currentHour && hourValue < 23;
+    const hourDate = DateTime.fromSeconds(hour.dt, { zone: timezone });
+    const hourValue = hourDate.hour;
+    return hourValue > currentHour && hourValue < 24;
   });
-
 
   let startWarningHour = null;
   let endWarningHour = null;
-  if (upcomingHours.length > 23) {
-    const nearestHighUv = upcomingHours.find((hour) => hour.uvi > 2);
+
+  if (upcomingHours.length <= 24) {
+    const nearestHighUv = upcomingHours.find((hour) => hour.uvi >= 2);
+
     if (nearestHighUv) {
-      const highDate = new Date(nearestHighUv.dt * 1000);
-      startWarningHour = highDate.getHours();
+      const highDate = DateTime.fromSeconds(nearestHighUv.dt, {
+        zone: timezone,
+      });
+
+      startWarningHour = highDate.hour;
 
       const startIndex = upcomingHours.findIndex(
         (hour) => hour === nearestHighUv
       );
-      if (startIndex !== -1) {
-        const nearestLowUvHour = upcomingHours
-          .slice(startIndex)
-          .find((hour) => hour.uvi < 2);
+      console.log(upcomingHours);
+      
 
+      if (startIndex !== -1) {
+  
+        const nearestLowUvHour = upcomingHours.find((hour, index) => index > startIndex && hour.uvi < 4);
+
+      
+        console.log(nearestLowUvHour);
+        
+
+      
         if (nearestLowUvHour) {
-          const lowDate = new Date(nearestLowUvHour.dt * 1000);
-          endWarningHour = lowDate.getHours();
+          const lowDate = DateTime.fromSeconds(nearestLowUvHour.dt, {
+            zone: timezone,
+          });
+  
+          endWarningHour = lowDate.hour;
         }
       }
     }
@@ -47,46 +64,54 @@ export const uvInfo = (
     const nearestLowUvHour = upcomingHours.find((hour) => hour.uvi < 2);
 
     if (nearestLowUvHour) {
-      const lowDate = new Date(nearestLowUvHour.dt * 1000);
+      const lowDate = DateTime.fromSeconds(nearestLowUvHour.dt, {
+        zone: timezone,
+      });
 
-      endWarningHour = lowDate.getHours();
+      endWarningHour = lowDate.hour;
     }
   }
 
-  const roundUv = Math.round(uv)
-  
+  const roundUv = Math.round(uv);
 
-  if(endWarningHour !== null){
-    if(roundUv <= 2 && endWarningHour < 17){
-        return {
-            level: "Low",
-            info: "UV is at a low level.",
-          };
-    }
+  if (endWarningHour !== null) {
     if (roundUv >= 3 && roundUv < 6)
-    return {
-      level: "Moderate",
-      info: `Use sun protection until ${endWarningHour}:00.`,
-    };
-  if (roundUv >= 5 && roundUv < 8 )
-    return { level: "High", info: `Avoid the sun until ${endWarningHour}:00.` };
-  if (roundUv >= 7 && roundUv < 11 && endWarningHour < 17)
-    return {
-      level: "Very high",
-      info: `Avoid the sun until ${endWarningHour}:00.`,
-    };
-  if (roundUv > 10)
-    return {
-      level: "Extreme",
-      info: `Avoid the sun until ${endWarningHour}:00.`,
-    };
-    if (startWarningHour !== null && roundUv <= 2 && currentHour < startWarningHour)
-    return {
-      level: "Low",
-      info: `Keep out of the sun from ${startWarningHour}:00 to ${endWarningHour}:00.`,
-    };
+      return {
+        level: "Moderate",
+        info: `Use sun protection until ${endWarningHour}:00.`,
+      };
+    if (roundUv >= 5 && roundUv < 8)
+      return {
+        level: "High",
+        info: `Avoid the sun until ${endWarningHour}:00.`,
+      };
+    if (roundUv >= 7 && roundUv < 11)
+      return {
+        level: "Very high",
+        info: `Avoid the sun until ${endWarningHour}:00.`,
+      };
+    if (roundUv > 10)
+      return {
+        level: "Extreme",
+        info: `Avoid the sun until ${endWarningHour}:00.`,
+      };
+    if (
+      startWarningHour !== null &&
+      roundUv <= 2 &&
+      currentHour < startWarningHour
+    )
+      return {
+        level: "Low",
+        info: `Keep out of the sun from ${startWarningHour}:00 to ${endWarningHour}:00.`,
+      };
+
+    if (roundUv <= 2 && endWarningHour < 17) {
+      return {
+        level: "Low",
+        info: "UV is at a low level.",
+      };
+    }
   }
-  
 
   return { level: "Low", info: "It stays low for the rest of the day." };
 };
@@ -106,33 +131,76 @@ export const getWindDirection = (deg: number): string => {
   return "N";
 };
 
-export const feelsLikeInfo = (feelsLike: number, currentTemp: number): string => {
-    const fLTemp = Math.round(feelsLike);
-    const temp = Math.round(currentTemp);
+export const feelsLikeInfo = (
+  feelsLike: number,
+  currentTemp: number
+): string => {
+  const fLTemp = Math.round(feelsLike);
+  const temp = Math.round(currentTemp);
 
-    if(temp <= 10) {
-        if(fLTemp === temp) return "Similar to the actual temperature."
-        if(fLTemp < temp) return "Wind is making it feel cooler."
-    }
-    
-    if(temp >= 27 ){
-        if(fLTemp === temp) return "Similar to the actual temperature."
-        if(fLTemp > temp) return "Humidity is making it feel warmer."
-    }
+  if (temp <= 10) {
+    if (fLTemp === temp) return "Similar to the actual temperature.";
+    if (fLTemp < temp) return "Wind is making it feel cooler.";
+  }
 
-    return "Similar to the actual temperature.";
-}
+  if (temp >= 27) {
+    if (fLTemp === temp) return "Similar to the actual temperature.";
+    if (fLTemp > temp) return "Humidity is making it feel warmer.";
+  }
+
+  return "Similar to the actual temperature.";
+};
 
 export const visibilityKm = (visibility: number) => {
-    const kmVisibility = visibility / 1000;
+  const kmVisibility = visibility / 1000;
 
-    return kmVisibility;
-}
+  return kmVisibility;
+};
 
 export const visibilityInfo = (visibility: number): string => {
-    const kmVisibility = visibility / 1000;
+  const kmVisibility = visibility / 1000;
 
-    if(kmVisibility < 10) return "Visibility is low.";
+  if (kmVisibility < 10) return "Visibility is low.";
 
-    return "Perfect clear view.";
-}
+  return "Perfect clear view.";
+};
+
+export const setBackgroud = (weather: string | undefined) => {
+  const background = document.querySelector(".weather-window ") as HTMLElement;
+  const hours = new Date().getHours();
+
+  if (background) {
+    const weatherGradients: Record<string, string> = {
+      Mist: "linear-gradient(180deg, #fff -10%, #245C81 80%)",
+      Smoke: "linear-gradient(180deg, #fff -10%, #245C81 80%)",
+      Haze: "linear-gradient(180deg, #fff -10%, #245C81 80%)",
+      Dust: "linear-gradient(180deg, #fff -10%, #245C81 80%)",
+      Fog: "linear-gradient(180deg, #fff -10%, #245C81 80%)",
+      Sand: "linear-gradient(180deg, #fff -10%, #245C81 80%)",
+      Ash: "linear-gradient(180deg, #fff -10%, #245C81 80%)",
+      Squall: "linear-gradient(180deg, #fff -10%, #245C81 80%)",
+      Tornado: "linear-gradient(180deg, #fff -10%, #245C81 80%)",
+      Thunderstorm: "linear-gradient(180deg, #fff -50%, #444e55 40%)",
+      Rain: "linear-gradient(180deg, #fff -50%, #444e55 40%)",
+      Drizzle: "linear-gradient(180deg, #fff -50%, #444e55 40%)",
+      Clouds: "linear-gradient(180deg, #fff -20%, #245C81 40%)",
+    };
+
+    if (typeof weather === "string") {
+      if (weather in weatherGradients) {
+        background.style.background = weatherGradients[weather];
+        return;
+      }
+
+      if (weather === "Clear" && hours > 20 && hours < 5) {
+        background.style.background =
+          "linear-gradient(90deg, rgba(2,0,36,1) 50%, rgba(9,9,121,1) 100%, rgba(0,212,255,1) 100%)";
+        return;
+      }
+
+      background.style.background =
+        "linear-gradient(145deg, #ffed4b -40%, #2f99df 40%)";
+      return;
+    }
+  }
+};

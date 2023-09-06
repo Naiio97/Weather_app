@@ -1,27 +1,29 @@
+import { DateTime } from "luxon";
 import "../styles/HourlyForecast.scss";
-
 
 type HourlyForecast = {
   hourKey: number;
   dt: number;
+  timezone: string;
   temp: number;
   now: boolean;
   icon: string;
 };
 
 const HourlyForecast = (props: HourlyForecast) => {
-  const { hourKey, dt, temp, now, icon } = props;
-  
-  
-  const formatDtToHour = (unixTimestamp: number) => {
-    const date = new Date(unixTimestamp * 1000);
-    const formattedHour = date.getHours();
-    return formattedHour;
-  };  
+  const { hourKey, dt, timezone, temp, now, icon } = props;
+
+  const getHour = (dt: number, timezone: string): number => {
+    const dateTime = DateTime.fromSeconds(dt, { zone: timezone });
+
+    const hour = dateTime.hour;
+
+    return hour;
+  };
 
   return (
     <div key={hourKey} className="hourly-weather-box">
-      {!now ? <span>{formatDtToHour(dt)}</span> : <span>Now</span>}
+      {!now ? <span>{getHour(dt, timezone)}</span> : <span>Now</span>}
 
       <img src={`https://openweathermap.org/img/wn/${icon}.png`} />
       <span>{Math.round(temp)}</span>

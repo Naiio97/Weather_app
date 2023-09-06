@@ -2,8 +2,9 @@
 
 .weather-window {
   padding: 10px;
-  background: linear-gradient(145deg, #ffed4b -40%, #2f99df 40%);
+  background: $suny-day;
   min-height: 100vh;
+  background-size: 200% 200%;
 
   .search {
     display: flex;
@@ -279,11 +280,11 @@
 
       @mixin twoLineTileValue {
         margin-top: 22px;
-          @include tile-info;
+        @include tile-info;
 
-          @media screen and (max-width: 470px) {
-            margin-top: 54px;
-          }
+        @media screen and (max-width: 470px) {
+          margin-top: 54px;
+        }
       }
 
       .uv-index {
@@ -315,10 +316,11 @@
         }
 
         .uv-bar {
-          height: 4px;
-          width: 100%;
+          height: 6px;
+          width: 120px;
+          position: relative;
           background: linear-gradient(
-            145deg,
+            90deg,
             #71d35b,
             #eed23a,
             #f19e3c,
@@ -332,11 +334,23 @@
             margin: 25px 0;
           }
 
-          .ball {
-            height: 4px;
-            width: 4px;
-            background-color: #fff;
-            border-radius: 4px;
+          .outside-ball {
+            height: 8px;
+            width: 8px;
+            border-radius: 50%;
+            background-color: #2988c7;
+            position: absolute;
+            bottom: -0.9px;
+
+            .ball {
+              height: 5px;
+              width: 5px;
+              background-color: #fff;
+              border-radius: 50%;
+              position: absolute;
+              top: 1.5px;
+              left: 1.5px;
+            }
           }
         }
 

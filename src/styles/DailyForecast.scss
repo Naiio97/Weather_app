@@ -27,23 +27,43 @@
     gap: 10px;
 
     .lowest-temp {
-        color: $light-blue-text;
+      color: $light-blue-text;
     }
 
-    .progress-bar {
+    .bar {
       display: flex;
-      height: 4px;
+      height: 6px;
       width: 120px;
       background-color: #00000017;
-      border-radius: 2px;
+      border-radius: 6px;
       align-items: center;
 
-      .bar {
-        background: linear-gradient(145deg, #c8d190 -40%, #ef752b 40%);
-        height: 4px;
+      .progress-bar {
+        height: 6px;
         width: 120px;
-        border-radius: 2px;
+        border-radius: 6px;
+        position: relative;
+
+        .outside-ball {
+          height: 8px;
+          width: 8px;
+          border-radius: 50%;
+          background-color: #2988c7;
+          position: absolute;
+          bottom: -0.9px;
+
+          .ball {
+            height: 5px;
+            width: 5px;
+            background-color: #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 1.5px;
+            left: 1.5px;
+          }
+        }
       }
     }
   }
 }
+

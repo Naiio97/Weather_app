@@ -15,6 +15,7 @@ import {
   feelsLikeInfo,
   visibilityKm,
   visibilityInfo,
+  setBackgroud
 } from "../helpers/index";
 
 import "../styles/WeatherContainer.scss";
@@ -31,6 +32,7 @@ const WeatherContainer = () => {
   const [city, setCity] = useState<optionType | null>(null);
   const [options, setOptions] = useState<[]>([]);
   const [forecast, setForecast] = useState<forecastType | null>(null);
+  const [uvBallPosition, setUvBallPosition] = useState<number>(0);
 
   const api_key = import.meta.env.VITE_REACT_APP_API_KEY;
 
@@ -59,6 +61,8 @@ const WeatherContainer = () => {
         setForecast(extractedData);
       });
   };
+  
+  setBackgroud(forecast?.current.weather[0].main);
 
   const onOptionSelect = (option: optionType) => {
     setCity(option);
@@ -133,6 +137,46 @@ const WeatherContainer = () => {
     }
   }, []);
 
+
+  
+
+useEffect(() => {
+
+  const uvValue = Math.round(forecast?.current.uvi);
+  const minUv = 0;
+  const maxUv = 11;
+  const minPosition = 0;
+  const maxPosition = 112;
+  
+  
+  if(uvValue || uvValue == 0){
+    
+    const normalizedUv = Math.min(Math.max(uvValue, minUv), maxUv);
+   
+    const barRange = maxPosition - minPosition;
+    const uvRange = maxUv - minUv;
+
+    const relativePosition = ((normalizedUv - minUv) / uvRange) * barRange + minPosition;
+    
+    setUvBallPosition(relativePosition);
+  }
+
+}, [forecast]);
+
+  const minOfDaily: number[] = [];
+  forecast?.daily.forEach(day => {
+    minOfDaily.push(day.temp.min)
+    
+  });
+  const lowestTemperatureFromDaily = Math.min(...minOfDaily);
+
+  const maxOfDaily: number[] = [];
+  forecast?.daily.forEach(day => {
+    maxOfDaily.push(day.temp.max)
+    
+  });
+  const highestTemperatureFromDaily = Math.max(...maxOfDaily);
+
   return (
     <div>
       {forecast && city ? (
@@ -157,7 +201,7 @@ const WeatherContainer = () => {
               <div className="low-hig">
                 <span>
                   <BsArrowDown />
-                  {Math.floor(forecast.daily[0].temp.min)}°
+                  {Math.round(forecast.daily[0].temp.min)}°
                 </span>
                 <span>
                   <BsArrowUp />
@@ -192,11 +236,13 @@ const WeatherContainer = () => {
                           index
                         ) => {
                           const isCurrentHour = index === 0;
+                          const timezone = forecast.timezone;
                           return (
                             <HourlyForecast
                               key={hour.dt}
                               hourKey={index}
                               dt={hour.dt}
+                              timezone={timezone}
                               temp={hour.temp}
                               now={isCurrentHour}
                               icon={hour.weather[0].icon}
@@ -229,16 +275,24 @@ const WeatherContainer = () => {
                           const isLastItem =
                             index === forecast.daily.length - 1;
                           const today = index === 0;
+                          const temp = forecast.current.temp
+                          const timezone = forecast.timezone;
+                          const lowestTemp = lowestTemperatureFromDaily
+                          const highestTemp = highestTemperatureFromDaily
                           return (
                             <DailyForecast
                               key={day.dt}
                               dailyKey={index}
                               day={day.dt}
+                              timezone={timezone}
+                              temp={temp}
                               min={day.temp.min}
                               max={day.temp.max}
                               icon={day.weather[0].icon}
                               isLastItem={isLastItem}
                               today={today}
+                              lowestTemp = {lowestTemp}
+                              highestTemp = {highestTemp}
                             />
                           );
                         }
@@ -256,14 +310,17 @@ const WeatherContainer = () => {
                     <div className="uv-value">
                       <span>{Math.round(forecast.current.uvi)}</span>
                       <span>
-                        {uvInfo(forecast.current.uvi, forecast.hourly).level}
+                        {uvInfo(forecast.current.uvi, forecast.hourly, forecast.timezone, forecast.current.dt).level}
                       </span>
                     </div>
                     <div className="uv-bar">
+                      <div className="outside-ball" style={{left: `${uvBallPosition}px`}} >
                       <div className="ball"></div>
+                      </div>
+                      
                     </div>
                     <div className="uv-info">
-                    <p>{uvInfo(forecast.current.uvi, forecast.hourly).info}</p>
+                    <p>{uvInfo(forecast.current.uvi, forecast.hourly, forecast.timezone, forecast.current.dt).info}</p>
                     </div>
                     
                   </div>

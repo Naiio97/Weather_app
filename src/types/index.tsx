@@ -12,6 +12,7 @@ export type forecastType = {
       start: number;
     }
   ];
+  timezone: string;
   current: {
     clouds: number;
     dew_point: number;
