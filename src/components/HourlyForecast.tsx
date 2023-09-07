@@ -24,7 +24,6 @@ const HourlyForecast = (props: HourlyForecast) => {
   return (
     <div key={hourKey} className="hourly-weather-box">
       {!now ? <span>{getHour(dt, timezone)}</span> : <span>Now</span>}
-
       <img src={`https://openweathermap.org/img/wn/${icon}.png`} />
       <span>{Math.round(temp)}</span>
     </div>

@@ -39,23 +39,17 @@ export const uvInfo = (
       const startIndex = upcomingHours.findIndex(
         (hour) => hour === nearestHighUv
       );
-      console.log(upcomingHours);
-      
 
       if (startIndex !== -1) {
-  
-        const nearestLowUvHour = upcomingHours.find((hour, index) => index > startIndex && hour.uvi < 4);
+        const nearestLowUvHour = upcomingHours.find(
+          (hour, index) => index > startIndex && hour.uvi < 4
+        );
 
-      
-        console.log(nearestLowUvHour);
-        
-
-      
         if (nearestLowUvHour) {
           const lowDate = DateTime.fromSeconds(nearestLowUvHour.dt, {
             zone: timezone,
           });
-  
+
           endWarningHour = lowDate.hour;
         }
       }
@@ -165,9 +159,17 @@ export const visibilityInfo = (visibility: number): string => {
   return "Perfect clear view.";
 };
 
-export const setBackgroud = (weather: string | undefined) => {
+export const setBackgroud = (
+  weather: string | undefined,
+  dt: number,
+  timezone: string,
+  sunrise: number,
+  sunset: number
+) => {
   const background = document.querySelector(".weather-window ") as HTMLElement;
-  const hours = new Date().getHours();
+  const hours = DateTime.fromSeconds(dt, { zone: timezone }).hour;
+  const sunriseHour = DateTime.fromSeconds(sunrise, { zone: timezone }).hour;
+  const sunsetHour = DateTime.fromSeconds(sunset, { zone: timezone }).hour;
 
   if (background) {
     const weatherGradients: Record<string, string> = {
@@ -192,9 +194,9 @@ export const setBackgroud = (weather: string | undefined) => {
         return;
       }
 
-      if (weather === "Clear" && hours > 20 && hours < 5) {
+      if ((weather === "Clear" && hours < sunriseHour) || hours > sunsetHour) {
         background.style.background =
-          "linear-gradient(90deg, rgba(2,0,36,1) 50%, rgba(9,9,121,1) 100%, rgba(0,212,255,1) 100%)";
+          "linear-gradient(0deg, rgb(2, 0, 36) 66%, rgb(255 255 255) 114%)";
         return;
       }
 

@@ -21,6 +21,7 @@ const DailyForecast = (props: Props) => {
     dailyKey,
     day,
     timezone,
+    temp,
     min,
     max,
     icon,
@@ -30,7 +31,7 @@ const DailyForecast = (props: Props) => {
     highestTemp,
   } = props;
 
-  //const [tempBallPosition, setTempBallPositio] = useState<number>(0);
+  const [tempBallPosition, setTempBallPositio] = useState<number>(0);
   const [barWidth, setBarWidth] = useState(0);
   const [barLeft, setBarLeft] = useState(0);
 
@@ -43,40 +44,39 @@ const DailyForecast = (props: Props) => {
   };
 
   useEffect(() => {
-    const dayMin = Math.round(min);
-    const dayMax = Math.round(max);
-    const lowestTempWeek = Math.round(lowestTemp);
-    const highestTempWeek = Math.round(highestTemp);
+    const dayMin = Math.floor(min);
+    const dayMax = Math.ceil(max);
+    const lowestTempWeek = Math.floor(lowestTemp);
+    const highestTempWeek = Math.ceil(highestTemp);
 
     const tempRange = highestTempWeek - lowestTempWeek;
     const minTempPosition = ((dayMin - lowestTempWeek) / tempRange) * 100;
     const maxTempPosition = ((dayMax - lowestTempWeek) / tempRange) * 100;
 
-    setBarLeft(Math.round(minTempPosition));
-    setBarWidth(Math.round(maxTempPosition - Math.round(minTempPosition)));
+    setBarLeft(Math.floor(minTempPosition));
+    setBarWidth(Math.ceil(maxTempPosition - Math.floor(minTempPosition)));
   }, [min, max, lowestTemp, highestTemp]);
 
-  // useEffect(() => {
-  //   if (today) {
-  //     const actualTemp = Math.round(temp);
-  //     const dayMin = Math.round(min);
-  //     const dayMax = Math.round(max);
-      
+  useEffect(() => {
+    if (today) {
+      const actualTemp = Math.round(temp);
+      const dayMin = Math.round(min);
+      const dayMax = Math.round(max);
 
-  //     const minPosition = 0;
-  //     const maxPosition = barWidth + 8;
+      const minPosition = 0;
+      const maxPosition = barWidth;
 
-  //     const normalizedTemp = Math.min(Math.max(actualTemp, dayMin), dayMax);
+      const normalizedTemp = Math.min(Math.max(actualTemp, dayMin), dayMax);
 
-  //     const barRange = maxPosition - minPosition;
-  //     const tempRange = dayMax - dayMin;
+      const barRange = maxPosition - minPosition;
+      const tempRange = dayMax - dayMin;
 
-  //     const relativePosition =
-  //       ((normalizedTemp - dayMin) / tempRange) * barRange + minPosition;
+      const relativePosition =
+        ((normalizedTemp - dayMin) / tempRange) * barRange + minPosition;
 
-  //     setTempBallPositio(relativePosition);
-  //   }
-  // }, [temp, barWidth]);
+      setTempBallPositio(relativePosition);
+    }
+  }, [temp, barWidth, today, min, max]);
 
   const colorBars = document.querySelectorAll(".bar .progress-bar");
   colorBars.forEach((colorBar) => {
@@ -91,23 +91,23 @@ const DailyForecast = (props: Props) => {
 
         <img src={`https://openweathermap.org/img/wn/${icon}.png`} />
         <div className="daily-temperature">
-          <span className="lowest-temp">{Math.round(min)}</span>
+          <span className="lowest-temp">{Math.floor(min)}</span>
           <div className="bar">
             <div
               style={{ left: `${barLeft}%`, width: `${barWidth}%` }}
               className="progress-bar"
             >
-              {/* {today && (
+              {today && (
                 <div
                   className="outside-ball"
                   style={{ left: `${tempBallPosition}px` }}
                 >
                   <div className="ball"></div>
                 </div>
-              )} */}
+              )}
             </div>
           </div>
-          <span>{Math.round(max)}</span>
+          <span>{Math.ceil(max)}</span>
         </div>
       </div>
       {!isLastItem && <div className="horisontal-bar"></div>}

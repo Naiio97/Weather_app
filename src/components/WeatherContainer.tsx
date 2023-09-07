@@ -15,7 +15,7 @@ import {
   feelsLikeInfo,
   visibilityKm,
   visibilityInfo,
-  setBackgroud
+  setBackgroud,
 } from "../helpers/index";
 
 import "../styles/WeatherContainer.scss";
@@ -61,8 +61,16 @@ const WeatherContainer = () => {
         setForecast(extractedData);
       });
   };
-  
-  setBackgroud(forecast?.current.weather[0].main);
+
+  if (forecast) {
+    setBackgroud(
+      forecast.current.weather[0].main,
+      forecast.current.dt,
+      forecast.timezone,
+      forecast.current.sunrise,
+      forecast.current.sunset
+    );
+  }
 
   const onOptionSelect = (option: optionType) => {
     setCity(option);
@@ -137,43 +145,35 @@ const WeatherContainer = () => {
     }
   }, []);
 
+  useEffect(() => {
+    const uvValue = Math.round(forecast?.current.uvi);
+    const minUv = 0;
+    const maxUv = 11;
+    const minPosition = 0;
+    const maxPosition = 112;
 
-  
+    if (uvValue || uvValue == 0) {
+      const normalizedUv = Math.min(Math.max(uvValue, minUv), maxUv);
 
-useEffect(() => {
+      const barRange = maxPosition - minPosition;
+      const uvRange = maxUv - minUv;
 
-  const uvValue = Math.round(forecast?.current.uvi);
-  const minUv = 0;
-  const maxUv = 11;
-  const minPosition = 0;
-  const maxPosition = 112;
-  
-  
-  if(uvValue || uvValue == 0){
-    
-    const normalizedUv = Math.min(Math.max(uvValue, minUv), maxUv);
-   
-    const barRange = maxPosition - minPosition;
-    const uvRange = maxUv - minUv;
+      const relativePosition =
+        ((normalizedUv - minUv) / uvRange) * barRange + minPosition;
 
-    const relativePosition = ((normalizedUv - minUv) / uvRange) * barRange + minPosition;
-    
-    setUvBallPosition(relativePosition);
-  }
-
-}, [forecast]);
+      setUvBallPosition(relativePosition);
+    }
+  }, [forecast]);
 
   const minOfDaily: number[] = [];
-  forecast?.daily.forEach(day => {
-    minOfDaily.push(day.temp.min)
-    
+  forecast?.daily.forEach((day) => {
+    minOfDaily.push(day.temp.min);
   });
   const lowestTemperatureFromDaily = Math.min(...minOfDaily);
 
   const maxOfDaily: number[] = [];
-  forecast?.daily.forEach(day => {
-    maxOfDaily.push(day.temp.max)
-    
+  forecast?.daily.forEach((day) => {
+    maxOfDaily.push(day.temp.max);
   });
   const highestTemperatureFromDaily = Math.max(...maxOfDaily);
 
@@ -201,11 +201,11 @@ useEffect(() => {
               <div className="low-hig">
                 <span>
                   <BsArrowDown />
-                  {Math.round(forecast.daily[0].temp.min)}°
+                  {Math.floor(forecast.daily[0].temp.min)}°
                 </span>
                 <span>
                   <BsArrowUp />
-                  {Math.round(forecast.daily[0].temp.max)}°
+                  {Math.ceil(forecast.daily[0].temp.max)}°
                 </span>
               </div>
             </div>
@@ -238,15 +238,17 @@ useEffect(() => {
                           const isCurrentHour = index === 0;
                           const timezone = forecast.timezone;
                           return (
-                            <HourlyForecast
-                              key={hour.dt}
-                              hourKey={index}
-                              dt={hour.dt}
-                              timezone={timezone}
-                              temp={hour.temp}
-                              now={isCurrentHour}
-                              icon={hour.weather[0].icon}
-                            />
+                            <div key={hour.dt} className="hourly-forecast-item">
+                              <HourlyForecast
+                                key={hour.dt}
+                                hourKey={index}
+                                dt={hour.dt}
+                                timezone={timezone}
+                                temp={hour.temp}
+                                now={isCurrentHour}
+                                icon={hour.weather[0].icon}
+                              />
+                            </div>
                           );
                         }
                       )
@@ -275,10 +277,10 @@ useEffect(() => {
                           const isLastItem =
                             index === forecast.daily.length - 1;
                           const today = index === 0;
-                          const temp = forecast.current.temp
+                          const temp = forecast.current.temp;
                           const timezone = forecast.timezone;
-                          const lowestTemp = lowestTemperatureFromDaily
-                          const highestTemp = highestTemperatureFromDaily
+                          const lowestTemp = lowestTemperatureFromDaily;
+                          const highestTemp = highestTemperatureFromDaily;
                           return (
                             <DailyForecast
                               key={day.dt}
@@ -291,8 +293,8 @@ useEffect(() => {
                               icon={day.weather[0].icon}
                               isLastItem={isLastItem}
                               today={today}
-                              lowestTemp = {lowestTemp}
-                              highestTemp = {highestTemp}
+                              lowestTemp={lowestTemp}
+                              highestTemp={highestTemp}
                             />
                           );
                         }
@@ -310,19 +312,36 @@ useEffect(() => {
                     <div className="uv-value">
                       <span>{Math.round(forecast.current.uvi)}</span>
                       <span>
-                        {uvInfo(forecast.current.uvi, forecast.hourly, forecast.timezone, forecast.current.dt).level}
+                        {
+                          uvInfo(
+                            forecast.current.uvi,
+                            forecast.hourly,
+                            forecast.timezone,
+                            forecast.current.dt
+                          ).level
+                        }
                       </span>
                     </div>
                     <div className="uv-bar">
-                      <div className="outside-ball" style={{left: `${uvBallPosition}px`}} >
-                      <div className="ball"></div>
+                      <div
+                        className="outside-ball"
+                        style={{ left: `${uvBallPosition}px` }}
+                      >
+                        <div className="ball"></div>
                       </div>
-                      
                     </div>
                     <div className="uv-info">
-                    <p>{uvInfo(forecast.current.uvi, forecast.hourly, forecast.timezone, forecast.current.dt).info}</p>
+                      <p>
+                        {
+                          uvInfo(
+                            forecast.current.uvi,
+                            forecast.hourly,
+                            forecast.timezone,
+                            forecast.current.dt
+                          ).info
+                        }
+                      </p>
                     </div>
-                    
                   </div>
                 </div>
                 <div className="wind">
@@ -334,15 +353,14 @@ useEffect(() => {
                     <span>{Math.round(forecast.current.wind_speed)} km/h</span>
                     <span>{getWindDirection(forecast.current.wind_deg)}</span>
                   </div>
-                  
+
                   {forecast.current.wind_gust && (
                     <div className="wind-info">
-                    <p>
-                      In gusts up to {Math.round(forecast.current.wind_gust)}
-                    </p>
+                      <p>
+                        In gusts up to {Math.round(forecast.current.wind_gust)}
+                      </p>
                     </div>
                   )}
-
                 </div>
                 <div className="rain">
                   <div className="name-tile">
@@ -358,11 +376,14 @@ useEffect(() => {
                     </span>
                     <span>in last 24 hours</span>
                   </div>
-                    <div className="rain-info">
-                      <p>
-                        {forecast.daily[1].rain ? Math.round(forecast.daily[1].rain) : 0 } mm expected in next 24h.
-                      </p>
-                    </div>
+                  <div className="rain-info">
+                    <p>
+                      {forecast.daily[1].rain
+                        ? Math.round(forecast.daily[1].rain)
+                        : 0}{" "}
+                      mm expected in next 24h.
+                    </p>
+                  </div>
                 </div>
                 <div className="feels-like">
                   <div className="name-tile">
@@ -402,7 +423,10 @@ useEffect(() => {
                     <span>{forecast.current.humidity}%</span>
                   </div>
                   <div className="humidity-info">
-                        <p>The dew point is {Math.round(forecast.current.dew_point)}° right now.</p>
+                    <p>
+                      The dew point is {Math.round(forecast.current.dew_point)}°
+                      right now.
+                    </p>
                   </div>
                 </div>
               </div>
